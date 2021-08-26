@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Flower power!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="images/flower-icon.png" />
+    <link rel="stylesheet" type="text/css" href="vendor/normalize.css">
+    <link rel="stylesheet" type="text/css" href="styles/main.css">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <script src="scripts/main.js"></script>
+</head>
+
+
+<body class="content body-header-fixed">
+    <header class="header header-fixed primary-color-bg">
+        <nav class="navigation container">
+            <div class="menu">
+                <a href="index.html" class="link menu-item">Home</a>
+                <a href="order.html" class="link menu-item">Order</a>
+                <a href="index.html" class="link">
+                    <img class="scaled-image scaled-image-fixed" src="images/logo.svg" alt="Company logo">
+                </a>
+                <a href="#" class="link menu-item">Contact us</a>
+                <a href="cart.html" class="link menu-item cart-menu-active link-active">
+                    <img src="images/cart-icon.svg" alt="Cart icon">
+                    <div class="cart-menu-status">
+                        <div id="cart-items">0</div>
+                        <div>items</div>
+                    </div>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <main class="main">
+
+    
+
+    <div class="centered-container">
+        <h1 class="decorated-title font-secondary main-color">
+            <span class="main-color-emphasized">Shopping cart</span>
+            items</h1>
+        <div class="separator"></div>
+    </div>
+    
+    <div class="gallery" style="width: 50%; margin:auto;">
+        <div></div>
+        <div class="cart-header">
+            <button class="cart-header-title" id="product-button" onclick="sortIme()" >Product</button>
+            <button class="cart-header-title" id="price-button" onclick="sortCijena()">Price</button>
+            <button class="cart-header-title" id="quantity-button" onclick="sortKolicina()">Quantity</button>
+        </div>
+    </div>
+    <div id='cart-dodavanje'></div>
+    <template id="cart-template-item">
+        <div  class="gallery" style="width: 50%; margin:auto;">
+        <div></div>
+        <div class="cart-item">
+            <div class="cart-item-title" id="cart-item-title">Tulips</div>
+            <div class="cart-item-price" id="cart-item-price">15 kn</div>
+            <input type="number" class="cart-item-quantity"></input>
+        </div>
+        <div></div>
+    </div>
+    </template>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <div class="menu menu-distributed">
+                <div class="infobox infobox-marginless infobox-copyright">
+                    <h4 class="infobox-title infobox-title-secondary-color main-color-emphasized">
+                        Copy this as much as you like
+                    </h4>
+                </div>
+                <div class="infobox infobox-marginless infobox-flower">
+                    <h4 class="infobox-title infobox-title-secondary-color main-color-emphasized">
+                        Flower power
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        var dataImena=[];
+        var dataCijene=[];
+        var dataKolicina=[];
+        let getData = async function () {
+           
+            let mapa = new Map(JSON.parse(localStorage.kosarica));
+            for(let number of mapa.keys()){
+                let response = await fetch("https://web1lab2.azurewebsites.net/products/"+ number);
+                let data = await response.json();
+                dataImena.push(data.name);
+                dataCijene.push(data.price);
+                dataKolicina.push(mapa.get(number));
+                console.log(data.name + data.price);
+            }
+            dohvatiProdukte(dataImena,dataCijene,dataKolicina);
+
+        }
+
+        let dohvatiProdukte = async function(ime,cijena,kolicina){
+            let main = document.querySelector('#cart-dodavanje');
+            while(main.firstChild){
+                main.removeChild(main.firstChild);
+            }
+            for(i=0;i<ime.length;i++){
+                articleTemplate = document.querySelector('#cart-template-item');
+                let article = articleTemplate.content.cloneNode(true);
+                article.querySelector('.cart-item-title').textContent= ime[i];
+                article.querySelector('.cart-item-price').textContent = cijena[i] + " kn";
+                article.querySelector('.cart-item-quantity').value = kolicina[i];
+                main.appendChild(article);
+
+            }
+           
+        }
+
+        function sortIme(){
+            for(i=0;i<dataImena.length;i++){
+                for(j=i+1;j<dataImena.length;j++){
+                    if(dataImena[i]>dataImena[j]){
+                        var imeTemp=dataImena[j];
+                        dataImena[j]=dataImena[i];
+                        dataImena[i]=imeTemp;
+                        var cijenaTemp=dataCijene[j];
+                        dataCijene[j]=dataCijene[i];
+                        dataCijene[i]=cijenaTemp;
+                        var kolicinaTemp=dataKolicina[j];
+                        dataKolicina[j]=dataKolicina[i];
+                        dataKolicina[i]=kolicinaTemp;
+                    }
+                }
+            }
+            dohvatiProdukte(dataImena,dataCijene,dataKolicina);
+        }
+        function sortCijena(){
+            for(i=0;i<dataImena.length;i++){
+                for(j=i+1;j<dataImena.length;j++){
+                    if(dataCijene[i]>dataCijene[j]){
+                        var imeTemp=dataImena[j];
+                        dataImena[j]=dataImena[i];
+                        dataImena[i]=imeTemp;
+                        var cijenaTemp=dataCijene[j];
+                        dataCijene[j]=dataCijene[i];
+                        dataCijene[i]=cijenaTemp;
+                        var kolicinaTemp=dataKolicina[j];
+                        dataKolicina[j]=dataKolicina[i];
+                        dataKolicina[i]=kolicinaTemp;
+                    }
+                }
+            }
+            dohvatiProdukte(dataImena,dataCijene,dataKolicina);
+        }
+        function sortKolicina(){
+            for(i=0;i<dataImena.length;i++){
+                for(j=i+1;j<dataImena.length;j++){
+                    if(dataKolicina[i]>dataKolicina[j]){
+                        var imeTemp=dataImena[j];
+                        dataImena[j]=dataImena[i];
+                        dataImena[i]=imeTemp;
+                        var cijenaTemp=dataCijene[j];
+                        dataCijene[j]=dataCijene[i];
+                        dataCijene[i]=cijenaTemp;
+                        var kolicinaTemp=dataKolicina[j];
+                        dataKolicina[j]=dataKolicina[i];
+                        dataKolicina[i]=kolicinaTemp;
+                    }
+                }
+            }
+            dohvatiProdukte(dataImena,dataCijene,dataKolicina);
+        }
+
+        getData();
+    </script>

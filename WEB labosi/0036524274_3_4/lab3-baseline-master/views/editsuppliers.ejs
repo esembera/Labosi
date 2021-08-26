@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> <%=title%> </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="/images/flower-icon.png"/>
+    <link rel="stylesheet" type="text/css" href="/vendor/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+</head>
+
+<body class="content">
+
+<%- include(`partials/header`); %>
+
+<main class="main">
+
+            <!-- INSERT CODE HERE -->
+            <div class="centered-container">
+                <h1 class="decorated-title font-secondary main-color">
+                    Edit
+                    <span class="main-color-emphasized">Supplier</span>
+                    for item
+                    <span class="main-color-emphasized"><%=item.name%></span>
+                </h1>
+                <div class="separator"></div>
+            </div>
+			
+			<!-- POMOĆNI DIO -->
+            <div class="container">
+                <form action="/item/<%=item.id%>/editsupplier/<%=suppliers.id%>" method="POST">
+                    <fieldset class="fieldset">
+                        <div class="label-input">
+                            <label for="name"> Name: </label>
+                            <input type="text" name="name" id="name" size="22" value="<%=suppliers.name%>" >
+                        </div>
+                        <div class="label-input">
+                            <label for="country"> Country: </label>
+                            <input type="text" name="country" id="country" size="22"value="<%=suppliers.country%>" >
+                        </div>
+                        <div class="label-input">
+                            <label for="county"> County: </label>
+                            <input type="text" name="county" id="county" size="22" value="<%=suppliers.county%>" >
+                        </div>
+                        <div class="label-input">
+                            <label for="email"> E-mail: </label>
+                            <input type="email" name="email" id="email" size="22" value="<%=suppliers.email%>" >
+                        </div>
+                        <div class="label-input">
+                            <label for="since"> Supplier since: </label>
+                            <input type="number" name="since" id="since" value="<%=suppliers.suppliersince%>">
+                        </div>
+                        <hr>
+                        <div class="submitButtons">
+                            <input type="submit" class="btn" >
+                            <input type="reset" class="btn" >
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+
+</main>
+
+<%- include(`partials/footer`); %>
+
+</body>
+
+</html>
