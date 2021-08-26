@@ -1,0 +1,92 @@
+registers {
+	status/.1./,
+	podatak/.32./,
+	pom/.32./;
+}
+
+variables {
+	zaustavljena/.1./;
+}
+
+
+pins {
+	D/.32./, A/.32./, READ, WRITE, to_proces, from_proces;
+}
+
+init {
+	disable D, A, READ, WRITE;
+
+	let to_proces=0;
+	disable from_proces;
+
+	let status=0;
+	let zaustavljena=0;
+}
+
+run {
+	forever{
+		wait ( fall (READ) or fall(WRITE) );
+		if( zaustavljena=0 ) {
+			if( from_proces == 1 )
+				let status = from_proces;
+			// else nista, jer status bistabil moze samo postati
+			// spreman pod utjecajem procesa
+		}
+		let pom=A;
+		delay 1 bc;
+		if (pom=%H FFFF2000 ) {
+			if (WRITE=0) {
+				if( status==0 ) {
+					print( "GRESKA u vj2 - slanje podatka",
+					" na nespremnu vanjsku jedinicu",/);
+				}
+				let podatak=D;
+				trace.5 {
+					print( "vj2 prima podatak: ",
+						%3.s podatak, / );
+				}
+	///////////////			let to_proces=1;
+			}
+			if (READ=0) {
+				print( "GRESKA u vj2 - citanje s izlazne",
+				" vanjske jedinice", / );
+			}
+		}
+
+		if (pom=%H FFFF2004 ) {
+
+			if (WRITE=0) {
+				let status=0;
+				let to_proces=1;
+				trace.5 {
+					print( "brisanje statusa vj2", / );
+				}
+			}
+			if (READ=0) {
+				let D=status;
+				if( status==1 ) trace.5 {
+					print( "ispitivanje statusa spremne vj2", / );
+				}
+			}
+		}
+
+		//if (pom=%H FFFF2008 ) {
+		//	if (WRITE=0) {
+		//		trace.5 {
+		//			print( "vj2 je zaustavljena ", / );
+		//		}
+		//	 	let zaustavljena=1;
+		//	}
+		//	if (READ=0) {
+		//		print( "GRESKA u vj2 - citanje s lokacije",
+		//		"za zaustavljanje ", / );
+		//	}
+		//}
+
+		wait(rise (READ) or rise (WRITE));
+		delay 1 bc;
+		disable D;
+		let to_proces=0;
+	}	
+}
+

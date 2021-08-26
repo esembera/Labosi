@@ -1,0 +1,73 @@
+                       CTCR `EQU 0FFFF0000 
+                       CTLR `EQU 0FFFF0004 
+                       CTSTAT `EQU 0FFFF0008 
+                       CTEND `EQU 0FFFF000C 
+                        
+                       BVJDATA `EQU 0FFFFFFFC 
+                        
+                       DMASRC `EQU 0FFFF1000 
+                       DMADEST `EQU 0FFFF1004 
+                       DMACNT `EQU 0FFFF1008 
+                       DMACTRL `EQU 0FFFF100C 
+                       DMASTART `EQU 0FFFF1010 
+                       DMAIACK `EQU 0FFFF1014 
+                        
+                       `ORG 0 
+00000000  00 00 81 07  	MOVE 10000, SP 
+00000004  4C 00 00 C4  	JP GLAVNI 
+                       	 
+                       `ORG 0C 
+0000000C  00 00 00 88  	PUSH R0 
+00000010  00 00 20 00  	MOVE SR, R0 
+00000014  00 00 00 88  	PUSH R0 
+00000018  00 00 00 89  	PUSH R2 
+0000001C  14 10 0F B8  	STORE R0, (DMAIACK) 
+00000020  FF FF 0F 05  	MOVE -1, R2 
+00000024  04 00 10 34  	SUB R1, 4, R0 
+00000028  00 00 00 BD  	STORE R2, (R0) 
+0000002C  B8 00 00 B0  	LOAD R0, (BLOKOVI) 
+00000030  01 00 00 24  	ADD R0, 1, R0 
+00000034  B8 00 00 B8  	STORE R0, (BLOKOVI) 
+00000038  00 00 00 81  	POP R2 
+0000003C  00 00 00 80  	POP R0 
+00000040  00 00 10 00  	MOVE R0, SR 
+00000044  00 00 00 80  	POP R0 
+00000048  03 00 00 D8  	RETN 
+                       	 
+                       GLAVNI 
+0000004C  00 10 80 04  	MOVE 1000, R1 
+00000050  E8 03 00 04  	MOVE %D 1000, R0 
+00000054  04 00 0F B8  	STORE R0, (CTLR) 
+00000058  01 00 00 04  	MOVE 1, R0 
+0000005C  00 00 0F B8  	STORE R0, (CTCR) 
+                       LOOP 
+00000060  B8 00 00 B0  	LOAD R0, (BLOKOVI) 
+00000064  06 00 00 6C  	CMP R0, 6 
+00000068  3C 00 C0 D5  	JR_EQ KRAJ 
+                       	 
+0000006C  08 00 0F B0  	LOAD R0, (CTSTAT) 
+00000070  01 00 00 14  	AND R0, 1, R0 
+00000074  E8 FF CF D5  	JR_Z LOOP 
+                       	 
+00000078  08 00 0F B8  	STORE R0, (CTSTAT) 
+                       	 
+0000007C  FC FF 0F 04  	MOVE BVJDATA, R0 
+00000080  00 10 0F B8  	STORE R0, (DMASRC) 
+00000084  04 10 8F B8  	STORE R1, (DMADEST) 
+00000088  28 00 90 24  	ADD R1, 28, R1 
+0000008C  09 00 00 04  	MOVE 9, R0 
+00000090  08 10 0F B8  	STORE R0, (DMACNT) 
+00000094  07 00 00 04  	MOVE %B 111, R0 
+00000098  0C 10 0F B8  	STORE R0, (DMACTRL) 
+                       	 
+0000009C  10 10 0F B8  	STORE R0, (DMASTART) 
+000000A0  0C 00 0F B8  	STORE R0, (CTEND) 
+000000A4  B8 FF 0F D4  	JR LOOP 
+                       	 
+                       KRAJ 
+000000A8  00 00 00 04  	MOVE 0, R0 
+000000AC  00 00 0F B8  	STORE R0, (CTCR) 
+000000B0  0C 10 0F B8  	STORE R0, (DMACTRL) 
+000000B4  00 00 00 F8  	HALT 
+                       		 
+000000B8  01 00 00 00  BLOKOVI `DW 01,00,00,00 

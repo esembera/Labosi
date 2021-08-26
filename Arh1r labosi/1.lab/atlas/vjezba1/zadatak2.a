@@ -1,0 +1,107 @@
+    
+    MOVE 10000, SP
+    MOVE LABELA, R6
+    MOVE 1000, R5
+    LOAD R4, (UVJET)
+    MOVE 0, R0
+PETLJA
+    LOAD R1, (R6)
+    CMP R1, R4
+    JP_EQ OUT
+    LOADH R1, (R6)
+    ADD R6, 2, R6
+    LOADH R2, (R6)
+    ADD R6, 2, R6
+    SHL R1, 10, R1
+    ASHR R1, 10, R1
+    SHL R2, 10, R2
+    ASHR  R2, 10, R2
+    PUSH R1
+    PUSH R2
+    CALL COMP
+    STORE R0, (R5)
+    ADD R5, 4, R5
+    JP PETLJA
+    
+OUT
+
+
+    HALT
+
+LABELA DW 4321432C, 0FF7DBA, 548BB78B, 0BADADEDA, 7C8A1B39, 80008000
+UVJET DW 80008000
+REG DW 0
+ISTAR DW 0
+
+COMP
+    POP R3
+    MOVE 0, R0
+    STORE R1, (REG)
+    STORE R2, (ISTAR)
+    POP R1
+    POP R2
+    PUSH R1
+    PUSH R2
+    SHR R1, 18, R1
+    SHR R2, 18, R2
+    AND R1, 0FF, R1
+    AND R2, 0FF, R2
+    CMP R1, R2
+    JP_EQ JEDNAKI_1
+    OR R0, 0BB, R0
+    SHL R0, 8, R0
+    JP LABELA_1
+JEDNAKI_1
+    OR R0, 0AA, R0
+    SHL R0, 8, R0
+LABELA_1    
+    POP R1
+    POP R2
+    PUSH R1
+    PUSH R2
+    SHR R1, 10, R1
+    SHR R2, 10, R2
+    AND R1, 0FF, R1
+    AND R2, 0FF, R2
+    CMP R1, R2
+    JP_EQ JEDNAKI_2
+    OR R0, 0BB, R0
+    SHL R0, 8, R0
+    JP LABELA_2
+JEDNAKI_2
+    OR R0, 0AA, R0
+    SHL R0, 8, R0
+LABELA_2  
+    POP R1
+    POP R2
+    PUSH R1
+    PUSH R2
+    SHR R1, 08, R1
+    SHR R2, 08, R2
+    AND R1, 0FF, R1
+    AND R2, 0FF, R2
+    CMP R1, R2
+    JP_EQ JEDNAKI_3
+    OR R0, 0BB, R0
+    SHL R0, 8, R0
+    JP LABELA_3
+JEDNAKI_3
+    OR R0, 0AA, R0
+    SHL R0, 8, R0
+LABELA_3 
+    POP R1
+    POP R2
+    PUSH R1
+    PUSH R2
+    AND R1, 0FF, R1
+    AND R2, 0FF, R2
+    CMP R1, R2
+    JP_EQ JEDNAKI_4
+    OR R0, 0BB, R0
+    JP LABELA_4
+JEDNAKI_4
+    OR R0, 0AA, R0
+LABELA_4
+    PUSH R3
+    RET
+

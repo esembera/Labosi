@@ -1,0 +1,45 @@
+ 
+    MOVE 18, R0
+    MOVE 1005, R7
+    MOVE 0FF, R6
+PETLJA
+    LOAD R1, (R0+500)
+    OR R1,R1,R1
+    JP_N NEGATIVNI
+    
+KOMPARIRANJE1
+    CMP R1, %D 127
+    JR_SLE MANJE_JEDNAK
+    
+KOMPER
+    CMP R1,%D 127
+    JR_SLE MANJA
+    
+VECI  
+    STOREB R6, (R7)
+    SUB R7, 1, R7
+    SUB R0, 4, R0
+    JP_NZ PETLJA
+    HALT
+MANJE_JEDNAK
+    STOREB R1, (R7)
+    SUB R7, 1, R7
+    SUB R0, 4, R0
+    JP_NZ PETLJA
+    HALT
+NEGATIVNI    
+    XOR R1, -1, R1
+    ADD R1, 1, R1
+    JP KOMPER
+    
+MANJA
+    OR R1, 80, R1
+    STOREB R1, (R7)
+    SUB R7, 1, R7
+    SUB R0, 4, R0
+    JP_NZ PETLJA
+    HALT
+    
+    
+    ORG 500
+    DW 6, %d -1, %d +2, %d +291, %d +37, %d -700, %d -33

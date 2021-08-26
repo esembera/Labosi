@@ -1,0 +1,61 @@
+	MOV R13, #81<8
+    MOV R0, #1<8
+    MOV R1, #4<8
+    MOV R2, #2
+	
+LOOP1
+    LDR R3, [R0], #4
+    CMP R3, #8<28
+    BEQ KRAJ
+	CMP R3, #0
+	BEQ NULA
+	
+    STMFD R13!, {R3}
+    BL KUB
+    SUBS R4, R4, #1
+    MUL R5, R3, R2
+	ADD R13, R13, #4
+    STMFD R13!, {R4,R5}
+    BL DIV
+    ADD R13, R13, #8
+	STR R4, [R1], #4
+    B LOOP1
+NULA
+	STR R3, [R1], #4
+	B LOOP1
+KRAJ 
+	SWI 123456
+
+	ORG 100
+	DW 0, 3, 6, -1, -6, 80000000
+
+KUB
+    STMFD R13!, {R0}
+    ADD R4, R13, #4
+    LDMFD R4, {R0}
+    MUL R4, R0, R0
+    MUL R4, R4, R0
+    LDMFD R13!, {R0}
+    MOV PC,LR
+
+DIV
+    STMFD R13!, {R1, R2, R3}
+    MVN R4, #0
+    ADD R3, R13, #0C
+    LDMFD R3, {R1,R2}
+    ORRS R1, R1, R1
+    BPL DJELITELJ
+    RSB R1, R1, #0
+DJELITELJ
+    ORRS R2, R2, R2
+    BPL LOOP2
+    RSB R2, R2, #0
+LOOP2
+	ADD R4, R4, #1
+    SUBS R1, R1, R2
+    BMI NULANEG
+    BHS LOOP2
+	
+NULANEG
+    LDMFD R13!, {R1,R2,R3}
+    MOV PC,LR

@@ -1,0 +1,191 @@
+/*
+** Sklop FRISC - CT  (adresa se dekodira vanjskim dekoderom)
+*/
+
+
+registers {
+    status/.1./,     // status registar
+    CR/.32./,        // control registar
+    LR/.16./,        // limit registar
+    DC/.16./;        // down counter - brojilo impulsa
+}
+
+
+variables {
+    zc_up/.32./,
+    int_done/.32./,	// moze li se postaviti nova spremnost / prekid
+    int_postavljen/.32./, // koji prekid je bio postavljen: 0 (int) ili 1 (nmi) ili 2 (nista)
+    aux_adr/.32./;
+}
+
+
+pins { data/.32./, adr/.32./,    // prikljucci za povezivanje sa procesorom
+    READ, WRITE,
+    cs,
+    int, nmi, 
+    cnt,
+    zc,
+
+    // pomocni prikljucak za trace-ispis ID-a pojedinog sklopa CT
+    ID /.32./;
+}
+
+
+init {
+    disable data, adr, READ, WRITE, cs, ID;
+    let int = 1;
+    let nmi = 1;
+    let zc = 0;
+
+    let CR  = 0;        // odbrojavanje zabranjeno do prvog upisa
+    let status = 0;
+    let LR = 0;
+    let DC = 0;
+    
+    let int_postavljen = 2;	// inicijalno nije postavljen niti jedan prekid
+    let int_done = 1;   // dozvoljeno je postati spreman
+    let zc_up = 0;
+}
+
+
+broji {                 // smanji brojilo na svaki ZC (fall)
+
+    if (CR/.0./==0 ) // ako je brojilo zaustavljeno, nema odbrojavanja
+        return;
+
+    dec(DC,DC);	// inace, odbrojavaj
+    brkpt DC;
+    if ( DC == 0 ) {
+
+        let zc = 1;
+        let zc_up = 1;
+        let DC = LR;
+
+        if( int_done == 1 ) {
+            let int_done = 0;
+            let status = 1;
+            if (CR/.1./==1 ) {	// provjeri: treba li postaviti prekid
+		if (CR/.2./==0 ) {	// provjeri: koji prekid treba postaviti - maskirajuci ili nemaskirajuci
+			let int=0;
+			let int_postavljen = 0;
+		} else {
+			let nmi=0;
+			let int_postavljen = 1;
+		}
+            }
+        }
+        trace.5
+            print( /, "CT ", %1.u ID,
+                   ":  BROJILO JE DOSLO DO NULE", / );
+    }
+}
+
+
+programiranje_CT_a {
+
+    ///////////////////////////////////////////////////////////////////////
+    //
+    // Dva najniza bita se ne gledaju - CT radi samo sa 32-bitnim rijecima
+    //
+    ///////////////////////////////////////////////////////////////////////
+
+    let aux_adr = adr;
+
+    decode(aux_adr/.2..3./) {
+
+        %B 01: {
+            //******* upis u LR
+            if (WRITE=0) {
+                let LR=data;
+                let DC=LR;
+                trace.5
+                    print( "CT ", %1.u ID,
+                           ":  UPIS U LR i BROJILO = ", %5.u LR, / );
+            }
+
+            //******* citanje brojila
+            if (READ=0) {
+                let data=DC;
+                trace.5
+                    print( "CT ", %1.u ID,
+                           ":  CITANJE BROJILA = ", %5.u DC, / );
+            }
+        }
+        
+        %B 00: {
+            //******* upis u upravljacki registar CR
+            if (WRITE=0) {
+                let CR=data;
+                trace.5
+                    print( "CT ", %1.u ID,
+                           ":  UPIS U CR = ", %3.B CR/.0..2./, / );
+            }
+    
+            //******* citanje registra CR
+            if (READ=0) {
+                let data=status;
+                trace.5
+                    print( "CT ", %1.u ID,
+                           ":  CITANJE CR-a = ", %3.B CR/.0..2./, / );
+            }
+        }
+        
+        %B 10: {
+            //******* potvrda prihvata prekida
+            if (WRITE=0) {
+		if ( int_postavljen = 0 ) {	// odrediti kojem prekidu se potvrdjuje prihvat
+			let int=1;
+			let int_postavljen = 2;
+		} else if ( int_postavljen = 1 ) {
+			let nmi = 1;
+			let int_postavljen = 2;
+		}
+                let status = 0;
+                trace.5
+                    print( "CT ", %1.u ID,
+                           ":  PRIHVAT PREKIDA", / );
+            }
+
+	    //******* citanje stanja spremnosti
+            if (READ=0) {
+                let data=status;
+                trace.5
+                    print( "CT ", %1.u ID,
+                           ":  CITANJE SPREMNOSTI = ", %1.B status, / );
+            }
+        }
+
+        %B 11: {
+            //******* obavijest o kraju posluzivanja prekida
+            if (WRITE=0) {
+                let int_done=1;	// dozvoliti ponovno postavljanje spremnosti / prekida
+                trace.5
+                    print( "CT ", %1.u ID,
+                           ":  KRAJ POSLUZIVANJA", / );
+            }
+        }
+    }
+}
+
+
+run {
+    forever {
+        wait ( change(cs)  or  change( READ ) or change(cnt));
+        if ( rise( READ) ) {
+            disable data;
+        }
+        if (fall (cnt)) {
+            call broji;
+        }
+        if ( rise(cs) and (fall(READ) or fall(WRITE)) ) {
+            call programiranje_CT_a;
+        }
+
+        if( zc_up == 1 ) {
+            delay 1 bc;
+            let zc = 0;
+            let zc_up = 0;
+        }
+    }
+}
+

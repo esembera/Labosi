@@ -1,0 +1,79 @@
+    ORG 0
+    B GLAVNI
+    ORG 18
+    B PREKIDNI
+GLAVNI
+    MOV R13, #1<16
+    LDR R3, RTC
+    MOV R4, #1<8
+    STR R4, [R3, #4]
+    MOV R4, #1
+    STR R4, [R3, #10]
+    MOV R0, #0D
+    BL LCDWR
+    MRS R0, CPSR
+    BIC R0, R0, #80
+    MSR CPSR_c, R0
+
+
+PETLJA 
+    B PETLJA
+
+
+GPIO DW 0FFFFFF00
+RTC DW 0FFFFFE00
+INDEX DW 0
+    
+
+PREKIDNI
+    STMFD R13!, {R0, R1, R2, R3, R4, R14}
+    MOV R4, #4<8
+    LDR R1, INDEX
+    LDR R3, RTC
+    STR R0, [R3, #8]
+    MOV R0, #0
+    STR R0, [R3, #0C] 
+    MOV R0, #0D
+    BL LCDWR
+    MOV R0, #3E
+    BL LCDWR
+    BL LCDWR
+    BL LCDWR
+    LDR R0, [R1, R4]
+    CMP R0, #0
+    BEQ SKOK
+    BL LCDWR
+    MOV R0, #3C
+    BL LCDWR
+    BL LCDWR
+    BL LCDWR
+    MOV R0, #0A
+    BL LCDWR
+    ADD R1, R1, #1
+    STR R1, INDEX
+    B KRAJ
+
+
+SKOK
+    MOV R0, #0
+    STR R0, INDEX
+
+
+KRAJ
+    LDMFD R13!, {R0, R1, R2, R3, R4, R14} 
+    SUBS PC, R14, #4   
+
+
+LCDWR
+    LDR R2, GPIO
+    AND R0, R0, #7F
+    STRB R0, [R2, #4]
+    ORR R0, R0, #80
+    STRB R0, [R2, #4]
+    AND R0, R0, #7F
+    STRB R0, [R2, #4]
+    MOV PC, LR
+
+
+    ORG 400
+    DB 49,6e,74,65,72,6e,61,74,69,6f,6e,61,6c,69,73,61,74,69,6f,6e,0

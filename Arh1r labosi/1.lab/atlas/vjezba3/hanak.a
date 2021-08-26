@@ -1,0 +1,70 @@
+PRIMI_1 EQU  0FFFF1000; lokacija za primanje podataka s vj1
+SALJI_2 EQU  0FFFF2000; lokacija za slanje na uvj2
+STANJE_2 EQU  0FFFF2004; lokacija za provjeru stanja uvj2
+
+PVJ3POD  EQU 0FFFF3000 ; lokacija za prijenos podataka pvj3
+PVJ3IACK EQU 0FFFF3004 ; lokacija za dojavu prihvata prekida pvj3
+PVJ3IEND EQU 0FFFF3008 ; lokacija za dojavu kraja posluživanja pvj3 
+PVJ3STOP EQU 0FFFF300C ; lokacija za zaustavljanje  pvj3
+
+	ORG 0	
+	MOVE 10000, SP ; inicijalizacija stoga
+	JP GLAVNI ; preskakanje vektora
+	ORG 8 ; vektor za INT mora biti na adresi 8
+	DW 200 ; vektor je proizvoljan, ovdje je to 200
+GLAVNI  
+	MOVE %B 10000, SR; prekid GIE zastavica
+	MOVE 1, R0	
+	STORE R0, (PVJ3STOP); omoguci rad vanjske jedinice
+LOOP 	LOAD R0, (STANJE_2); provjerava stanje uvj2;
+	OR R0, R0, R0; postavljanje zastavica
+	JR_Z LOOP
+	
+	LOAD R0, (BROJ)
+	STORE R0, (SALJI_2)
+	STORE R0, (STANJE_2)
+	LOAD R0, (COUNT)
+	ADD R0, 1, R0
+	STORE R0, (COUNT)
+	JP LOOP
+
+	ORG 200
+	PUSH R0
+	MOVE SR, R0
+	PUSH R0
+		
+	STORE R0, (PVJ3IACK)
+	LOAD R0, (PRIMI_1)
+	OR R0, R0 ,R0
+	JR_P POZ
+	MOVE 0, R0
+	STORE R0, (PVJ3STOP)
+	HALT
+
+BROJ DW 0
+COUNT DW 0
+
+POZ	PUSH R0
+	CALL OBRADI
+	STORE R0, (BROJ)
+	LOAD R0, (COUNT)
+	STORE R0, (PVJ3POD)
+	ADD SP, 4, SP
+	POP R0
+	MOVE R0, SR
+	POP R0
+	STORE R0,(PVJ3IEND)
+	RETI
+
+
+OBRADI
+    PUSH R1
+    LOAD R1, (SP+08)
+    MOVE %D 2, R0
+    SUB R1, 1, R1
+    SHL R0, R1, R0
+    POP R1
+    RET
+	
+	
+
