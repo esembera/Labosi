@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="LAB3 - priprema/src"/>
+	<classpathentry kind="src" path="lab4 ponovo/src"/>
+	<classpathentry kind="src" path="Lab4/src"/>
+	<classpathentry kind="src" path="OOP/src"/>
+	<classpathentry kind="src" path="OOP1/src"/>
+	<classpathentry kind="output" path="LAB3 - priprema/bin"/>
+</classpath>
