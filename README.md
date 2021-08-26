@@ -1,2 +1,1 @@
-Većina Laboratorijskih vježbi koje smo do sada radili na FER-u.
-Fali OOP
+Većina Laboratorijskih vježbi i priprema koje smo do sada radili na FER-u.
