@@ -1,0 +1,9 @@
+Svoj password manager sam pisao u Pythonu. Šifre sam spremao u dictionary, kojem je ključ hashirana adresa (master passwordu je ključ 'master'), a vrijednost je 
+kriptirana lozinka. Za hashiranje sam koristio SHA256 hash funkciju. Kako bih osigurao da je svaka lozinka (čak i dvije iste lozinke) kriptirana drugim ključem, 
+kao salt koristim get_random_bytes() funkciju koja mi vraća 16 random byteova. Za derivaciju ključa koristim funkciju HKDF. Za izradu simetrične šifre koristim AES.
+Kako bi osigurao da se alat ne može koristiti s krivom master lozinkom, prilikom svakog korištenja alata, prije odrade funkcije koja je pozvana, ispitujem je li master 
+password dobar.
+
+Za pokretanje i isprobavanje programa sam napravio 3 skripte: run.ps1 je powershell skripta, run_linux je bash skripta napravljena za linux i run_windows je bash skripta
+napravljena za windows. Sve skripte isprobavaju iste funkcionalnosti; inicijalizacija password managera, dodavanje novog passworda, mijenjanje passworda za istu adresu,
+dohvaćanje passworda i isprobavanje dohvaćanja sa krivim master passwordom.

@@ -5,7 +5,7 @@ from Crypto.Random import get_random_bytes
 import sys
 import pickle
 
-#salt = b"<D[@b4>7D@YTjVNc"
+
 ulaz = sys.argv
 if ulaz[1] == 'init':
     passwordi={}
@@ -18,7 +18,6 @@ if ulaz[1] == 'init':
     nonce = cipher.nonce
     ciphertext, tag = cipher.encrypt_and_digest(ulaz[2].encode())
     passwordi[glavniHash] = (ciphertext, nonce, tag, salt)
-    print (passwordi)
     filename = "passwordi"
     with open (filename, 'wb') as outfile:
         pickle.dump(passwordi, outfile)
@@ -47,8 +46,7 @@ if ulaz[1] == 'put':
     cipher = AES.new(key, AES.MODE_EAX)
     nonce = cipher.nonce
     ciphertext, tag = cipher.encrypt_and_digest(ulaz[4].encode())
-    passwordi[glavniHash] = (ciphertext, nonce, tag, salt)  
-    print (passwordi)  
+    passwordi[glavniHash] = (ciphertext, nonce, tag, salt) 
     with open (filename, 'wb') as outfile:
         pickle.dump(passwordi, outfile)
 
@@ -81,6 +79,5 @@ if ulaz[1] == 'get':
         print("Master password incorrect or integrity check failed.")
         exit()
     print("Password for " + ulaz[3] + ' is: ' + decryptPass.decode())
-    breakpoint()
     
 
