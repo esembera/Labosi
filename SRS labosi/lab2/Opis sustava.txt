@@ -1,0 +1,16 @@
+Svoje alate za upravljanje korisnicima te za prijavu korisnika sam pisao u programskom jeziku Python.
+Lozinke sam spremao u dictionary, kojem je ključ hashirano korisničko ime, a pod vrijednosti su spremljeni hashirani password, salt te boolean vrijednost koja služi za 
+forsiranje korisnika da promijeni lozinku.
+Za hashiranje korisničkih imena sam koristio SHA256, tek toliko da username-ovi nebudu u plain tekstu, a za hashiranje lozinki sam koristio algoritam Scrypt. Njega sam
+odabrao jer je najsigurniji i najbolji za hashiranje lozinki. Siguran je zato što osim toga što prima salt kao i neki drugi hashing alogirtmi, prima i vrijednosti koje
+određuju koliko će memorijskog i procesorskog vremena koristiti, te koliko će memorije biti potrebno za samo hashiranje, što uvelike otežava paralelizam kod napadača, 
+pošto bi mu se vrlo brzo napunila memorija, a ujedno bi i za svako hashiranje trebalo više vremena, pa bi osim memorije bruteforce zahtjevao i puno vremena.
+Osim gore navedenog, implementirao sam i minimalne zahtjeve koje lozinka treba zadovoljiti, odredio sam da lozinka mora imati minimalno 1 broj, 1 veliko te 1 malo slovo,
+i mora imati minimalno 10 znakova, što osigurava da bruteforce jedne lozinke traje minimalno 3 tjedna, prema tablici koju sam našao na internetu.
+Još jedan korak zaštite koji sam koristio je onemogućavanje korisniku da pri mijenjanju lozinke postavi lozinku na istu koja je bila i prije mijenjanja, kako bi se 
+izbjeglo ponovno korištenje (možda) komprimitirane lozinke.
+Neki od sigurnosnih mehanizama koje sam još mogao implementirati, ali nisam, su: Onemogućavanje korisnika nakon određenog broja neuspjelih prijava i povećanje vremena
+čekanja nakon svakog neuspjelog pokušaja prijave te neku vrstu automatskog traženja da korisnik nakon nekog vremena promijeni svoju lozinku.
+
+Za isprobavanje ovog labosa sam napravio skriptu run_linux.sh koja radi na linuxu, jer skripta za windows nije radila kako treba. Ona u suštini pokazuje svu funkcionalnost
+moga koda.
