@@ -1,0 +1,74 @@
+4. laboratorijska vježba: Sigurnost mrežnih protokola i vatrozid
+
+Ernest Šembera, 0036524274
+
+U nastavku ću navesti zahtjev i naredbu koju sam iskoristio za rješavanje tog zahtjeva:
+
+
+1. "Računala iz lokalne mreže (LAN) imaju neograničeni pristup poslužiteljima u DMZ i Internetu" 
+
+$IPT -A FORWARD -i eth1 -o eth0 -j ACCEPT
+$IPT -A FORWARD -i eth1 -o eth2 -j ACCEPT
+
+2. "Pristup	iz vanjske mreže u lokalnu LAN mrežu je zabranjen"
+
+$IPT -A FORWARD -i eth0 -o eth1 -j DROP
+
+3. "Iz vanjske mreže (Interneta) dozvoljen je pristup poslužitelju server u DMZ korištenjem protokola SSH (tcp port 22) i DNS (udp i tcp port 53)"
+
+$IPT -A FORWARD -i eth0 -p tcp --dport 22 -d 203.0.113.10 -j ACCEPT
+$IPT -A FORWARD -i eth0 -p tcp --dport 53 -d 203.0.113.10 -j ACCEPT
+$IPT -A FORWARD -i eth0 -p udp --dport 53 -d 203.0.113.10 -j ACCEPT
+
+4. "S	poslužitelja server je dozvoljen pristup DNS poslužiteljima u Internetu (UDP i TCP port 53)"
+
+$IPT -A FORWARD -s 203.0.113.10 -p tcp --dport 53 -o eth0 -j ACCEPT
+$IPT -A FORWARD -s 203.0.113.10 -p udp --dport 53 -o eth0 -j ACCEPT
+
+5. "S	poslužitelja server je dozvoljen pristup poslužitelju host (u LAN) korištenjem protokola SSH"
+
+$IPT -A FORWARD -s 203.0.113.10 -d 10.0.0.11 -p tcp --dport 22 -j ACCEPT
+
+6."SSH pristup vatrozidu firewall je dozvoljen samo s računala admin (LAN)"
+
+$IPT -A INPUT -s 10.0.0.10 -p tcp --dport 22 -j ACCEPT 
+
+7. "Dodajte “anti-spoofing” pravila" - ovdje sam dodao anti-spoofing pravila na portove eth1 i eth2 koja su već bila dodana za port eth0, te sam našao na internetu adrese koje je dobro blokirati kako bi se spriječio spoofing i njih sam također primijenio na svaki port.
+
+$IPT -A INPUT   -i eth1 -s 127.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth1 -s 127.0.0.0/8  -j DROP
+$IPT -A INPUT   -i eth2 -s 127.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth2 -s 127.0.0.0/8  -j DROP
+
+$IPT -A INPUT   -i eth0 -s 0.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth0 -s 0.0.0.0/8  -j DROP
+$IPT -A INPUT   -i eth0 -s 10.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth0 -s 10.0.0.0/8  -j DROP
+$IPT -A INPUT   -i eth0 -s 172.16.0.0/12  -j DROP
+$IPT -A FORWARD -i eth0 -s 172.16.0.0/12  -j DROP
+$IPT -A INPUT   -i eth0 -s 192.168.0.0/16  -j DROP
+$IPT -A FORWARD -i eth0 -s 192.168.0.0/16  -j DROP
+$IPT -A INPUT   -i eth0 -s 224.0.0.0/3  -j DROP
+$IPT -A FORWARD -i eth0 -s 224.0.0.0/3  -j DROP
+
+$IPT -A INPUT   -i eth1 -s 0.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth1 -s 0.0.0.0/8  -j DROP
+$IPT -A INPUT   -i eth1 -s 10.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth1 -s 10.0.0.0/8  -j DROP
+$IPT -A INPUT   -i eth1 -s 172.16.0.0/12  -j DROP
+$IPT -A FORWARD -i eth1 -s 172.16.0.0/12  -j DROP
+$IPT -A INPUT   -i eth1 -s 192.168.0.0/16  -j DROP
+$IPT -A FORWARD -i eth1 -s 192.168.0.0/16  -j DROP
+$IPT -A INPUT   -i eth1 -s 224.0.0.0/3  -j DROP
+$IPT -A FORWARD -i eth1 -s 224.0.0.0/3  -j DROP
+
+$IPT -A INPUT   -i eth2 -s 0.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth2 -s 0.0.0.0/8  -j DROP
+$IPT -A INPUT   -i eth2 -s 10.0.0.0/8  -j DROP
+$IPT -A FORWARD -i eth2 -s 10.0.0.0/8  -j DROP
+$IPT -A INPUT   -i eth2 -s 172.16.0.0/12  -j DROP
+$IPT -A FORWARD -i eth2 -s 172.16.0.0/12  -j DROP
+$IPT -A INPUT   -i eth2 -s 192.168.0.0/16  -j DROP
+$IPT -A FORWARD -i eth2 -s 192.168.0.0/16  -j DROP
+$IPT -A INPUT   -i eth2 -s 224.0.0.0/3  -j DROP
+$IPT -A FORWARD -i eth2 -s 224.0.0.0/3  -j DROP
